@@ -16,9 +16,12 @@ environment.add_creature((120, 70, 210))
 clock = pygame.time.Clock()
 running = True
 while running:
-    for event in pygame.event.get():
+    events = pygame.event.get()
+    for event in events:
         if event.type == pygame.QUIT:
             running = False
+        else:
+            environment.process_event(event)
 
     screen.blit(map_image, (0, 0))
     environment.update()
