@@ -6,12 +6,12 @@ from environment import Environment
 
 pygame.init()
 
-map_image: pygame.Surface = pygame.image.load('images/map.bmp')
+map_image = pygame.Surface = pygame.image.load('images/map.bmp')
 screen_size = np.array(map_image.get_size()) * TILE_SIZE
 screen = pygame.display.set_mode(screen_size)
 
 environment = Environment(map_image)
-environment.add_creature((120, 70, 210))
+environment.add_creature()
 
 clock = pygame.time.Clock()
 running = True
