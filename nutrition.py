@@ -7,102 +7,83 @@ import food
 import settings
 
 
-class NutritionType(ABC):
+class AbstractNutritionType(ABC):
     @abstractmethod
-    def can_eat(self, f: food.Food) -> bool:
+    def can_eat(self, f: food.AbstractFood) -> bool:
         pass
 
     @abstractmethod
-    def nutrition_system_penalty(self):
+    def get_nutrition_system_penalty(self):
         pass
 
     @abstractmethod
-    def mutate(self) -> "NutritionType":
+    def mutate(self) -> "AbstractNutritionType":
         pass
 
     @abstractmethod
-    def color(self) -> pygame.Color:
+    def get_color(self) -> pygame.Color:
         pass
 
 
-class Herb(NutritionType):
-    def can_eat(self, f: food.Food) -> bool:
-        return isinstance(food, food.Plant)
+class Herbivorous(AbstractNutritionType):
+    def can_eat(self, f: food.AbstractFood) -> bool:
+        return isinstance(food, food.AbstractPlant)
 
-    def nutrition_system_penalty(self):
-        return settings.HERB_PENALTY
+    def get_nutrition_system_penalty(self):
+        return settings.HERBIVOROUS_PENALTY
 
-    def mutate(self) -> NutritionType:
-        r = random.random()
-        if r < settings.NUTRITION_MUTATE_PROBABILITY:
-            return Predator()
-        if r < 2 * settings.NUTRITION_MUTATE_PROBABILITY:
-            return Omnivorous()
-        return Herb()
+    def mutate(self) -> AbstractNutritionType:
+        if random.random() < settings.NUTRITION_MUTATE_PROBABILITY:
+            return random.choice((Scavenger, Omnivorous, Predator))()
+        return Herbivorous()
 
-    def color(self) -> pygame.Color:
-        return pygame.color.THECOLORS["darkgreen"]
+    def get_color(self) -> pygame.Color:
+        return settings.HERBIVOROUS_COLOR
 
 
-class Predator(NutritionType):
-    def can_eat(self, f: food.Food) -> bool:
-        return isinstance(food, food.Animal)
+class Predator(AbstractNutritionType):
+    def can_eat(self, f: food.AbstractFood) -> bool:
+        return isinstance(food, food.AbstractAnimal)
 
-    def nutrition_system_penalty(self):
+    def get_nutrition_system_penalty(self):
         return settings.PREDATOR_PENALTY
 
-    def mutate(self) -> NutritionType:
-        r = random.random()
-        if r < settings.NUTRITION_MUTATE_PROBABILITY:
-            return Herb()
-        if r < 2 * settings.NUTRITION_MUTATE_PROBABILITY:
-            return Omnivorous()
-        if r < 3 * settings.NUTRITION_MUTATE_PROBABILITY:
-            return Scavenger()
+    def mutate(self) -> AbstractNutritionType:
+        if random.random() < settings.NUTRITION_MUTATE_PROBABILITY:
+            return random.choice((Herbivorous, Omnivorous, Scavenger))()
         return Predator()
 
-    def color(self) -> pygame.Color:
-        return pygame.color.THECOLORS["red"]
+    def get_color(self) -> pygame.Color:
+        return settings.PREDATOR_COLOR
 
 
-class Omnivorous(NutritionType):
-    def can_eat(self, f: food.Food) -> bool:
+class Omnivorous(AbstractNutritionType):
+    def can_eat(self, f: food.AbstractFood) -> bool:
         return True
 
-    def nutrition_system_penalty(self):
-        return settings.OMNI_PENALTY
+    def get_nutrition_system_penalty(self):
+        return settings.OMNIVOROUS_PENALTY
 
-    def mutate(self) -> NutritionType:
-        r = random.random()
-        if r < settings.NUTRITION_MUTATE_PROBABILITY:
-            return Herb()
-        if r < 2 * settings.NUTRITION_MUTATE_PROBABILITY:
-            return Scavenger()
-        if r < 3 * settings.NUTRITION_MUTATE_PROBABILITY:
-            return Predator()
+    def mutate(self) -> AbstractNutritionType:
+        if random.random() < settings.NUTRITION_MUTATE_PROBABILITY:
+            return random.choice((Herbivorous, Scavenger, Predator))()
         return Omnivorous()
 
-    def color(self) -> pygame.Color:
-        return pygame.color.THECOLORS["grey"]
+    def get_color(self) -> pygame.Color:
+        return settings.OMNIVOROUS_COLOR
 
 
-class Scavenger(NutritionType):
-    def can_eat(self, f: food.Food) -> bool:
-        return isinstance(food, food.Carrion)
+class Scavenger(AbstractNutritionType):
+    def can_eat(self, f: food.AbstractFood) -> bool:
+        return isinstance(food, food.AbstractCarrion)
 
-    def nutrition_system_penalty(self):
-        return settings.SCAV_PENALTY
+    def get_nutrition_system_penalty(self):
+        return settings.SCAVENGER_PENALTY
 
-    def mutate(self) -> NutritionType:
-        r = random.random()
-        if r < settings.NUTRITION_MUTATE_PROBABILITY:
-            return Herb()
-        if r < 2 * settings.NUTRITION_MUTATE_PROBABILITY:
-            return Omnivorous()
-        if r < 3 * settings.NUTRITION_MUTATE_PROBABILITY:
-            return Predator()
+    def mutate(self) -> AbstractNutritionType:
+        if random.random() < settings.NUTRITION_MUTATE_PROBABILITY:
+            return random.choice((Herbivorous, Omnivorous, Predator))()
         return Scavenger()
 
-    def color(self) -> pygame.Color:
-        return pygame.color.THECOLORS["brown"]
-
+    def get_color(self) -> pygame.Color:
+        return settings.SCAVENGER_COLOR

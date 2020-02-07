@@ -1,9 +1,8 @@
 import pygame
 from pygame.sprite import Group
 
-from corpse import Corpse
 from creature import Creature
-from plant import Plant
+from food import Corpse, Plant
 from settings import *
 import numpy as np
 from random import choice, randint, random
@@ -20,7 +19,7 @@ class Environment(Group):
         self.size = np.array(self.map_image.get_size())
         self.border_size = self.map_image.get_size()
         self.available_tiles = np.array([(x, y) for x in range(self.size[0]) for y in range(self.size[1])
-                                         if self.map_image.get_at((x, y)) == pygame.color.THECOLORS["green"]])
+                                         if self.map_image.get_at((x, y)) == GROUND_COLOR])
         self.dragging = False
         self.scale = TILE_SIZE
         self.image: pygame.SurfaceType = pygame.transform.scale(self.map_image, self.size * self.scale)
@@ -63,30 +62,38 @@ class Environment(Group):
                 self.rect.center = x / 2, y / 2
                 self._rescale(0)
 
-    def add_creature(self, creature: Creature = None):
-        if creature is None:
-            position = choice(self.available_tiles)
-            creature = Creature(position, self, Prototype.random_prototype(), DEFAULT_ENERGY)
+    def add(self, *sprites):
+        super().add(*sprites)
+        for i in sprites:
+            if isinstance(i, Plant):
+                self.plants.add(i)
+            elif isinstance(i, Corpse):
+                self.corpses.add(i)
+            elif isinstance(i, Creature):
+                self.creatures.add(i)
+
+    def add_random_creature(self):
+        position = choice(self.available_tiles)
+        creature = Creature(position, self, Prototype.random_prototype(), DEFAULT_ENERGY)
         creature.environment = self
-        self.creatures.add(creature)
-        return self.add(creature)
+        self.add(creature)
 
     def draw(self, surface: pygame.SurfaceType):
-        surface.fill(pygame.color.THECOLORS["dimgrey"])
+        surface.fill(BACKGROUND_COLOR)
         surface.blit(self.image, self.rect.topleft)
 
         for plant in self.plants:
-            pygame.draw.circle(surface, pygame.color.THECOLORS["lawngreen"],
+            pygame.draw.circle(surface, PLANT_COLOR,
                                plant.position * self.scale + self.scale // 2 + self.rect.topleft,
                                self.scale // 2)
         for corpse in self.corpses:
-            pygame.draw.circle(surface, pygame.color.THECOLORS["black"],
+            pygame.draw.circle(surface, CORPSE_COLOR,
                                corpse.position * self.scale + self.scale // 2 + self.rect.topleft,
                                self.scale // 2)
 
         for creature in self.creatures:
-            radius = int(creature.size() * self.scale / 2)
-            pygame.draw.circle(surface, creature.prototype.nutrition_type.color(),
+            radius = int(creature.get_size() * self.scale / 2)
+            pygame.draw.circle(surface, creature.prototype.nutrition_type.get_color(),
                                creature.position * self.scale + self.scale // 2 + self.rect.topleft,
                                radius if radius >= 2 else 2)
 
@@ -103,7 +110,7 @@ class Environment(Group):
                 if eater.prototype.nutrition_type.can_eat(creature):
                     eater.eat(creature)
                     if not isinstance(creature, Corpse):
-                        self.corpses.add(Corpse(creature.position, creature.size()))
+                        self.corpses.add(Corpse(creature.position, creature.get_size()))
                     creature.kill()
 
         super().update(pygame.time.get_ticks(), *args)

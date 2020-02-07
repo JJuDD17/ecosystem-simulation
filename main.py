@@ -11,7 +11,7 @@ screen_size = np.array(map_image.get_size()) * TILE_SIZE
 screen = pygame.display.set_mode(screen_size)
 
 environment = Environment(map_image)
-environment.add_creature()
+environment.add_random_creature()
 
 clock = pygame.time.Clock()
 running = True

@@ -5,7 +5,7 @@ from settings import *
 
 
 class Prototype:
-    def __init__(self, strength: float, mass: float, speed: float, nutrition_type: nutrition.NutritionType,
+    def __init__(self, strength: float, mass: float, speed: float, nutrition_type: nutrition.AbstractNutritionType,
                  reproduction_rate: int):
         self.strength = strength
         self.mass = mass
@@ -28,11 +28,10 @@ class Prototype:
         nutrition_type = self.nutrition_type.mutate()
         return Prototype(strength, mass, speed, nutrition_type, reproduction_rate)
 
-    def energy_consumption(self) -> float:
-        consumption = 0
-        consumption += self.strength * STRENGTH_PENALTY
-        consumption += self.speed * SPEED_PENALTY
-        consumption += self.mass * MASS_PENALTY
+    def get_energy_consumption(self) -> float:
+        consumption = (self.strength * STRENGTH_PENALTY +
+                       self.speed * SPEED_PENALTY +
+                       self.mass * MASS_PENALTY)
         return consumption
 
     @staticmethod
@@ -40,5 +39,5 @@ class Prototype:
         return Prototype(randint(MIN_STRENGTH, MAX_STRENGTH),
                          randint(MIN_MASS, MAX_MASS),
                          randint(MIN_SPEED, MAX_SPEED),
-                         nutrition.Herb(),
+                         nutrition.Herbivorous(),
                          randint(MIN_REPRODUCTION_RATE, MAX_REPRODUCTION_RATE))
