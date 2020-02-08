@@ -21,6 +21,9 @@ class Creature(pygame.sprite.Sprite, AbstractAnimal):
 
         self._update_rect()
 
+    def get_color(self):
+        return self.prototype.nutrition_type.get_color()
+
     def _move_by(self, x, y):
         new_position = self.position + (x, y)
         if tuple(new_position) in self.environment.available_tiles:
